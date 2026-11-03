@@ -12,6 +12,9 @@ class CoffeeMachine {
     private int water = 500;
     private int milk = 400;
     private int coffee = 200;
+    // syrup is in pumps, whipped cream is in servings
+    private int syrup = 20;
+    private int whippedCream = 15;
     private int profit = 0;
 
     CoffeeMachine(Scanner scanner) {
@@ -85,6 +88,8 @@ class CoffeeMachine {
             return;
         }
 
+        int syrupNeeded = 0;
+        int creamNeeded = 0;
         String order = size + " " + drink;
 
         while (true) {
@@ -99,9 +104,11 @@ class CoffeeMachine {
                 order = order + " + extra shot";
             } else if (extra.equals("syrup")) {
                 cost = cost + 15;
+                syrupNeeded = syrupNeeded + 1;
                 order = order + " + syrup";
             } else if (extra.equals("whipped cream")) {
                 cost = cost + 15;
+                creamNeeded = creamNeeded + 1;
                 order = order + " + whipped cream";
             } else {
                 System.out.println("Sorry, we don't have '" + extra + "'.");
@@ -109,7 +116,7 @@ class CoffeeMachine {
         }
 
         System.out.println("A " + order + " costs Php " + cost + ".");
-        if (!hasEnoughResources(waterNeeded, milkNeeded, coffeeNeeded)) {
+        if (!hasEnoughResources(waterNeeded, milkNeeded, coffeeNeeded, syrupNeeded, creamNeeded)) {
             return;
         }
 
@@ -134,11 +141,13 @@ class CoffeeMachine {
         water -= waterNeeded;
         milk -= milkNeeded;
         coffee -= coffeeNeeded;
+        syrup -= syrupNeeded;
+        whippedCream -= creamNeeded;
         System.out.println("Here is your " + order + ". Enjoy!");
         checkLowSupplies();
     }
 
-    private boolean hasEnoughResources(int waterNeeded, int milkNeeded, int coffeeNeeded) {
+    private boolean hasEnoughResources(int waterNeeded, int milkNeeded, int coffeeNeeded, int syrupNeeded, int creamNeeded) {
         boolean enough = true;
         if (water < waterNeeded) {
             System.out.println("Sorry, there is not enough water.");
@@ -158,14 +167,27 @@ class CoffeeMachine {
             sms.send("0917-555-0100", "Coffee machine is out of coffee!");
             enough = false;
         }
+        if (syrup < syrupNeeded) {
+            System.out.println("Sorry, there is not enough syrup.");
+            SmsSender sms = new SmsSender();
+            sms.send("0917-555-0100", "Coffee machine is out of syrup!");
+            enough = false;
+        }
+        if (whippedCream < creamNeeded) {
+            System.out.println("Sorry, there is not enough whipped cream.");
+            SmsSender sms = new SmsSender();
+            sms.send("0917-555-0100", "Coffee machine is out of whipped cream!");
+            enough = false;
+        }
         return enough;
     }
 
     private void checkLowSupplies() {
-        if (water < 100 || milk < 50 || coffee < 30) {
+        if (water < 100 || milk < 50 || coffee < 30 || syrup < 3 || whippedCream < 3) {
             System.out.println("Warning: supplies are running low.");
             SmsSender sms = new SmsSender();
-            sms.send("0917-555-0100", "Low supplies: water " + water + "ml, milk " + milk + "ml, coffee " + coffee + "g");
+            sms.send("0917-555-0100", "Low supplies: water " + water + "ml, milk " + milk + "ml, coffee " + coffee + "g, syrup "
+                    + syrup + " pumps, whipped cream " + whippedCream + " servings");
         }
     }
 
@@ -173,6 +195,8 @@ class CoffeeMachine {
         System.out.println("Water: " + water + "ml");
         System.out.println("Milk: " + milk + "ml");
         System.out.println("Coffee: " + coffee + "g");
+        System.out.println("Syrup: " + syrup + " pumps");
+        System.out.println("Whipped cream: " + whippedCream + " servings");
         System.out.println("Money: Php " + profit);
     }
 }
